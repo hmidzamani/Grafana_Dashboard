@@ -2,7 +2,6 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
-const { InfluxDB } = require("@influxdata/influxdb-client");
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -11,15 +10,6 @@ console.log("Starting server...");
 
 // Debug: show public folder path
 console.log("Serving static files from:", path.join(__dirname, "public"));
-
-// InfluxDB credentials
-const url = "http://localhost:8086";
-const token = process.env.INFLUX_TOKEN;
-const org = "Process Team";
-const bucket = "D61_New_DB";
-
-const influxDB = new InfluxDB({ url, token });
-const queryApi = influxDB.getQueryApi(org);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -63,59 +53,17 @@ app.get("/dashboard", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "dashboard.html"));
 });
 
-// Data endpoint
-app.get("/data", async (req, res) => {
-  const fluxQuery = `
-    from(bucket: "${bucket}")
-      |> range(start: -1m)
-      |> filter(fn: (r) =>
-        r._measurement == "PLC_Tags" and
-        (r._field == "Online_OEE" or
-         r._field == "MachineSpeed" or
-         r._field == "TotalProducts" or
-         r._field == "TotalGoodProducts" or
-         r._field == "TotalScrapProducts"))
-      |> last()
-  `;
-
-  const data = {
-    Online_OEE: null,
-    MachineSpeed: null,
-    TotalProducts: null,
-    TotalGoodProducts: null,
-    TotalScrapProducts: null,
-  };
-
-  try {
-    await queryApi.queryRows(fluxQuery, {
-      next(row, tableMeta) {
-        const o = tableMeta.toObject(row);
-        data[o._field] = o._value;
-      },
-      error(error) {
-        console.error("Query error:", error);
-        res.status(500).json({ error: error.message });
-      },
-      complete() {
-        const scrapPercentage =
-          data.TotalProducts && data.TotalScrapProducts
-            ? ((data.TotalScrapProducts / data.TotalProducts) * 100).toFixed(2)
-            : "N/A";
-
-        const lineStatus =
-          data.MachineSpeed && data.MachineSpeed > 1 ? "Running" : "Stopped";
-
-        res.json({
-          ...data,
-          scrapPercentage,
-          lineStatus,
-        });
-      },
-    });
-  } catch (err) {
-    console.error("Unexpected error:", err);
-    res.status(500).json({ error: err.message });
-  }
+// Mock /data endpoint for Render (no InfluxDB required)
+app.get("/data", (req, res) => {
+  res.json({
+    Online_OEE: 87.5,
+    MachineSpeed: 250,
+    TotalProducts: 1234,
+    TotalGoodProducts: 1180,
+    TotalScrapProducts: 54,
+    scrapPercentage: 4.37,
+    lineStatus: "Running",
+  });
 });
 
 // Health check route
@@ -123,7 +71,7 @@ app.get("/", (req, res) => {
   res.send("RIO Dashboard is running.");
 });
 
-// Catch-all route (for client-side routing or wrong URLs)
+// Catch-all route (for wrong URLs)
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "dashboard.html"));
 });
