@@ -1,0 +1,145 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to bottom right, #1e3c72, #2a5298);
+  color: white;
+  text-align: center;
+}
+
+/* Header */
+header {
+  padding: 10px;
+}
+
+header h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+header h2 {
+  font-size: 16px;
+  margin: 5px 0 15px;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+}
+
+.metric {
+  background-color: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px;
+  width: 30%;
+}
+
+.metric h3 {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.metric p {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Table */
+.table {
+  margin: 10px;
+  font-size: 14px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.row.header {
+  font-weight: bold;
+  background-color: rgba(255,255,255,0.1);
+}
+
+/* Status Styles */
+.status-indicator {
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.running {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.stopped {
+  background-color: #e74c3c;
+  color: white;
+}
+
+/* Login Page */
+.login-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-container {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  border-radius: 15px;
+  width: 300px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.login-container h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.login-container h2 {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.login-container input {
+  padding: 10px;
+  margin: 10px 0;
+  width: 100%;
+  border: none;
+  border-radius: 5px;
+}
+
+.login-container button {
+  padding: 10px;
+  width: 100%;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-container .forgot {
+  font-size: 12px;
+  color: #ecf0f1;
+  text-decoration: underline;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.social-icons span {
+  font-size: 24px;
+  margin: 0 10px;
+}
+
+/* Footer Credit */
+.credit {
+  font-size: 12px;
+  color: #ccc;
+  margin-top: 20px;
+}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C1 Baby Diaper Machine</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard">
+  <header>
+    <h1>ZARRINROYA</h1>
+    <h2>C1 Baby Diaper Machine</h2>
+  </header>
+
+  <section class="metrics-grid">
+    <div class="metric">
+      <h3>Speed</h3>
+      <p id="speed">--</p>
+    </div>
+    <div class="metric">
+      <h3>OEE</h3>
+      <p id="oee">--</p>
+    </div>
+    <div class="metric">
+      <h3>Scrap %</h3>
+      <p id="scrapPercentage">--</p>
+    </div>
+  </section>
+
+  <section class="table">
+    <div class="row header">
+      <div>Metric</div>
+      <div>Value</div>
+    </div>
+    <div class="row">
+      <div>Line Status</div>
+      <div id="lineStatus" class="status-indicator">--</div>
+    </div>
+    <div class="row">
+      <div>Total Products</div>
+      <div id="totalProducts">--</div>
+    </div>
+    <div class="row">
+      <div>Good Products</div>
+      <div id="totalGood">--</div>
+    </div>
+    <div class="row">
+      <div>Scrap Products</div>
+      <div id="totalScrap">--</div>
+    </div>
+  </section>
+
+  <footer>
+    <p class="credit">Design by: Hamid Zamani</p>
+  </footer>
+
+  <script>
+    async function fetchData() {
+      const res = await fetch("/data");
+      const data = await res.json();
+
+      document.getElementById("speed").textContent = data.MachineSpeed ?? "N/A";
+      document.getElementById("oee").textContent = data.Online_OEE ?? "N/A";
+      document.getElementById("scrapPercentage").textContent = data.scrapPercentage ?? "N/A";
+      document.getElementById("totalProducts").textContent = data.TotalProducts ?? "N/A";
+      document.getElementById("totalGood").textContent = data.TotalGoodProducts ?? "N/A";
+      document.getElementById("totalScrap").textContent = data.TotalScrapProducts ?? "N/A";
+
+      const statusEl = document.getElementById("lineStatus");
+      if (data.lineStatus === "Running") {
+        statusEl.textContent = "Running";
+        statusEl.classList.add("running");
+        statusEl.classList.remove("stopped");
+      } else {
+        statusEl.textContent = "Stopped";
+        statusEl.classList.add("stopped");
+        statusEl.classList.remove("running");
+      }
+    }
+
+    fetchData();
+    setInterval(fetchData, 2000);
+  </script>
+</body>
+</html>
