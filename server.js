@@ -9,6 +9,9 @@ const port = process.env.PORT || 4000;
 
 console.log("Starting server...");
 
+// Debug: show public folder path
+console.log("Serving static files from:", path.join(__dirname, "public"));
+
 // InfluxDB credentials
 const url = "http://localhost:8086";
 const token = process.env.INFLUX_TOKEN;
@@ -45,7 +48,6 @@ app.post("/login", (req, res) => {
   const password = String(req.body.password || "").trim();
 
   if (users[username] === password) {
-    // Redirect to dashboard route (no .html)
     res.redirect("/dashboard");
   } else {
     res
@@ -121,11 +123,12 @@ app.get("/", (req, res) => {
   res.send("RIO Dashboard is running.");
 });
 
-// Catch-all route for any other paths (optional, avoids 404)
+// Catch-all route (for client-side routing or wrong URLs)
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "dashboard.html"));
 });
 
+// Start server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
