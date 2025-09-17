@@ -6,52 +6,54 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="dashboard">
-  <header>
-    <h1>ZARRINROYA</h1>
-    <h2>C1 Baby Diaper Machine</h2>
-  </header>
+  <div class="mobile-frame">
+    <header>
+      <h1>ZARRINROYA</h1>
+      <h2>C1 Baby Diaper Machine</h2>
+    </header>
 
-  <section class="metrics-grid">
-    <div class="metric">
-      <h3>Speed</h3>
-      <p id="speed">--</p>
-    </div>
-    <div class="metric">
-      <h3>OEE</h3>
-      <p id="oee">--</p>
-    </div>
-    <div class="metric">
-      <h3>Scrap %</h3>
-      <p id="scrapPercentage">--</p>
-    </div>
-  </section>
+    <section class="metrics-grid">
+      <div class="metric">
+        <h3>Speed</h3>
+        <p id="speed">--</p>
+      </div>
+      <div class="metric">
+        <h3>OEE</h3>
+        <p id="oee">--</p>
+      </div>
+      <div class="metric">
+        <h3>Scrap %</h3>
+        <p id="scrapPercentage">--</p>
+      </div>
+    </section>
 
-  <section class="table">
-    <div class="row header">
-      <div>Metric</div>
-      <div>Value</div>
-    </div>
-    <div class="row">
-      <div>Line Status</div>
-      <div id="lineStatus" class="status-indicator">--</div>
-    </div>
-    <div class="row">
-      <div>Total Products</div>
-      <div id="totalProducts">--</div>
-    </div>
-    <div class="row">
-      <div>Good Products</div>
-      <div id="totalGood">--</div>
-    </div>
-    <div class="row">
-      <div>Scrap Products</div>
-      <div id="totalScrap">--</div>
-    </div>
-  </section>
+    <section class="table">
+      <div class="row header">
+        <div>Metric</div>
+        <div>Value</div>
+      </div>
+      <div class="row">
+        <div>Line Status</div>
+        <div id="lineStatus" class="status-indicator">--</div>
+      </div>
+      <div class="row">
+        <div>Total Products</div>
+        <div id="totalProducts">--</div>
+      </div>
+      <div class="row">
+        <div>Good Products</div>
+        <div id="totalGood">--</div>
+      </div>
+      <div class="row">
+        <div>Scrap Products</div>
+        <div id="totalScrap">--</div>
+      </div>
+    </section>
 
-  <footer>
-    <p class="credit">Design by: Hamid Zamani</p>
-  </footer>
+    <footer>
+      <p class="credit">Design by: Hamid Zamani</p>
+    </footer>
+  </div>
 
   <script>
     async function fetchData() {

@@ -6,11 +6,15 @@ body {
   text-align: center;
 }
 
-/* Header */
-header {
+/* Mobile Frame */
+.mobile-frame {
+  width: 375px;
+  margin: 0 auto;
   padding: 10px;
+  box-sizing: border-box;
 }
 
+/* Header */
 header h1 {
   font-size: 20px;
   margin: 0;
@@ -25,7 +29,7 @@ header h2 {
 .metrics-grid {
   display: flex;
   justify-content: space-around;
-  padding: 10px;
+  padding: 10px 0;
 }
 
 .metric {
@@ -47,7 +51,7 @@ header h2 {
 
 /* Table */
 .table {
-  margin: 10px;
+  margin: 10px 0;
   font-size: 14px;
 }
 
@@ -92,7 +96,6 @@ header h2 {
   background-color: rgba(255, 255, 255, 0.1);
   padding: 30px;
   border-radius: 15px;
-  width: 300px;
   box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
 
