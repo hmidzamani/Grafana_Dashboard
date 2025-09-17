@@ -5,7 +5,7 @@ const path = require("path");
 const { InfluxDB } = require("@influxdata/influxdb-client");
 
 const app = express();
-const port = 4000;
+const port = process.env.PORT || 4000;
 
 console.log("Starting server...");
 
@@ -21,6 +21,7 @@ const queryApi = influxDB.getQueryApi(org);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
+// Simple user database
 const users = {
   Mahmood: "mahmood123",
   Mohsen: "mohsen123",
@@ -38,17 +39,29 @@ const users = {
   admin: "admin123",
 };
 
+// Login route
 app.post("/login", (req, res) => {
-  const username = String(req.body.username).trim();
-  const password = String(req.body.password).trim();
+  const username = String(req.body.username || "").trim();
+  const password = String(req.body.password || "").trim();
 
   if (users[username] === password) {
-    res.sendFile(path.join(__dirname, "public", "dashboard.html"));
+    // Redirect to dashboard route (no .html)
+    res.redirect("/dashboard");
   } else {
-    res.status(401).send("<h2 style='color:red;'>Invalid credentials. <a href='/'>Try again</a></h2>");
+    res
+      .status(401)
+      .send(
+        "<h2 style='color:red;'>Invalid credentials. <a href='/'>Try again</a></h2>"
+      );
   }
 });
 
+// Dashboard route
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "dashboard.html"));
+});
+
+// Data endpoint
 app.get("/data", async (req, res) => {
   const fluxQuery = `
     from(bucket: "${bucket}")
@@ -79,7 +92,7 @@ app.get("/data", async (req, res) => {
       },
       error(error) {
         console.error("Query error:", error);
-        res.json({ error: error.message });
+        res.status(500).json({ error: error.message });
       },
       complete() {
         const scrapPercentage =
@@ -99,8 +112,18 @@ app.get("/data", async (req, res) => {
     });
   } catch (err) {
     console.error("Unexpected error:", err);
-    res.json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
+});
+
+// Health check route
+app.get("/", (req, res) => {
+  res.send("RIO Dashboard is running.");
+});
+
+// Catch-all route for any other paths (optional, avoids 404)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "dashboard.html"));
 });
 
 app.listen(port, () => {
