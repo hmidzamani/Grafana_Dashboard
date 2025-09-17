@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
@@ -10,7 +11,7 @@ console.log("Starting server...");
 
 // InfluxDB credentials
 const url = "http://localhost:8086";
-const token = "nRyg2qfn8lA7Qe7lsOAuMFVvkTxzZwc8uwrtydLWlHtQ-C84dHRzV0bAlHz1LauRZWWxFEdsJtbiJSdIh13e-A==";
+const token = process.env.INFLUX_TOKEN;
 const org = "Process Team";
 const bucket = "D61_New_DB";
 
@@ -38,11 +39,13 @@ const users = {
 };
 
 app.post("/login", (req, res) => {
-  const { username, password } = req.body;
+  const username = String(req.body.username).trim();
+  const password = String(req.body.password).trim();
+
   if (users[username] === password) {
     res.sendFile(path.join(__dirname, "public", "dashboard.html"));
   } else {
-    res.send("<h2 style='color:red;'>Invalid credentials. <a href='/'>Try again</a></h2>");
+    res.status(401).send("<h2 style='color:red;'>Invalid credentials. <a href='/'>Try again</a></h2>");
   }
 });
 
