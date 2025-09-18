@@ -28,19 +28,25 @@
       margin-bottom: 2rem;
     }
     header h1 {
-      font-size: 2.96rem; /* was 2.275rem */
+      font-size: 2.96rem;
     }
     header p {
-      font-size: 1.69rem; /* was 1.3rem */
+      font-size: 1.69rem;
       opacity: 0.8;
       line-height: 1.2;
+      margin: 0.25rem 0;
+    }
+    /* Make machine name bold & 10% bigger */
+    header p.machine-name {
+      font-weight: 700;
+      font-size: calc(1.69rem * 1.1);
     }
     .status {
       margin-bottom: 2rem;
     }
     .status span {
       display: inline-block;
-      font-size: 1.69rem; /* was 1.3rem */
+      font-size: 1.69rem;
       padding: 0.65rem 1rem;
       border-radius: 8px;
       color: #fff;
@@ -63,11 +69,11 @@
       text-align: center;
     }
     .kpi h3 {
-      font-size: 1.69rem; /* was 1.3rem */
+      font-size: 1.69rem;
       margin-bottom: 0.65rem;
     }
     .kpi p {
-      font-size: 2.535rem; /* was 1.95rem */
+      font-size: 2.535rem;
       font-weight: 600;
       margin: 0;
     }
@@ -78,7 +84,7 @@
       margin-bottom: 1.5rem;
     }
     table th, table td {
-      font-size: 1.69rem; /* was 1.3rem */
+      font-size: 1.69rem;
       padding: 0.75rem;
       border-bottom: 1px solid #90caf9;
       text-align: left;
@@ -87,7 +93,7 @@
       background: #90caf9;
       color: #fff;
     }
-    /* Timeline */
+    /* Timeline original position */
     #timeline {
       display: flex;
       width: 100%;
@@ -107,7 +113,7 @@
     .segment:hover::after {
       content: attr(data-duration) ' min';
       position: absolute;
-      top: -1.5rem;
+      top: -2rem;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(0,0,0,0.7);
@@ -118,7 +124,7 @@
       white-space: nowrap;
     }
     .footer {
-      font-size: 1.43rem; /* was 1.1rem */
+      font-size: 1.43rem;
       opacity: 0.8;
       text-align: center;
     }
@@ -127,7 +133,7 @@
 <body>
   <header>
     <h1>ZarrinRoya</h1>
-    <p>C1 Baby Diaper Machine</p>
+    <p class="machine-name">C1 Baby Diaper Machine</p>
     <p>Process dev. Team</p>
   </header>
 
@@ -171,7 +177,6 @@
 
   <!-- 4-hour timeline segments -->
   <div id="timeline">
-    <!-- Example segments; adjust data-duration as needed -->
     <div class="segment running" data-duration="45" style="flex:45;"></div>
     <div class="segment stopped" data-duration="2"  style="flex:2;"></div>
     <div class="segment running" data-duration="10" style="flex:10;"></div>
@@ -213,13 +218,11 @@
         data.Online_OEE ? data.Online_OEE + '%' : '--%';
     }
 
-    // initial load
     updateAll();
     updateOee();
-
-    // intervals
     setInterval(updateAll, 2000);
     setInterval(updateOee, 20000);
   </script>
 </body>
 </html>
+```
