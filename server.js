@@ -1,13 +1,13 @@
 require("dotenv").config();
-const express = require("express");
+const express    = require("express");
 const bodyParser = require("body-parser");
-const path = require("path");
+const path       = require("path");
 const { InfluxDB } = require("@influxdata/influxdb-client");
 
-const app = express();
+const app  = express();
 const port = process.env.PORT || 4000;
 
-// --- Verify env variables ---
+// Env check
 if (
   !process.env.INFLUX_URL ||
   !process.env.INFLUX_TOKEN ||
@@ -18,130 +18,105 @@ if (
   process.exit(1);
 }
 
-// --- InfluxDB client ---
-const influx = new InfluxDB({
-  url: process.env.INFLUX_URL,
+// Influx client
+const influx   = new InfluxDB({
+  url:   process.env.INFLUX_URL,
   token: process.env.INFLUX_TOKEN,
 });
 const queryApi = influx.getQueryApi(process.env.INFLUX_ORG);
 
-// --- Serve static files ---
+// Static
 const publicPath = path.join(__dirname, "public");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(publicPath));
 
-console.log("🚀 Server initialized");
-console.log("📂 Serving static files from:", publicPath);
-
-// --- /data endpoint ---
+// /data
 app.get("/data", async (req, res) => {
   const fluxQuery = `
-    from(bucket: "${process.env.INFLUX_BUCKET}")
-      |> range(start: -5m)
-      |> filter(fn: (r) => r._measurement == "PLC_Tags")
+    from(bucket:"${process.env.INFLUX_BUCKET}")
+      |> range(start:-5m)
+      |> filter(fn:(r)=>r._measurement=="PLC_Tags")
       |> pivot(rowKey:["_time"], columnKey:["_field"], valueColumn:"_value")
-      |> sort(columns: ["_time"], desc: true)
+      |> sort(columns:["_time"], desc:true)
       |> limit(n:1)
   `;
-
   try {
     const rows = [];
     const observer = {
       next(row, tableMeta) {
-        const obj = tableMeta.toObject(row);
-        console.log("🔍 Raw InfluxDB row:", obj);
-        rows.push(obj);
+        rows.push(tableMeta.toObject(row));
       },
-      error(error) {
-        console.error("❌ InfluxDB query error:", error);
-        res.status(500).json({ error: "InfluxDB query failed" });
+      error(err) {
+        console.error("Influx error:", err);
+        res.status(500).json({ error: "Influx query failed" });
       },
       complete() {
-        console.log(`📊 Influx returned ${rows.length} rows`);
-
-        if (rows.length === 0) {
-          return res.json({
-            Online_OEE: null,
-            MachineSpeed: null,
-            TotalProducts: null,
-            TotalGoodProducts: null,
-            TotalScrapProducts: null,
-            scrapPercentage: null,
-            lineStatus: "Stopped",
-          });
-        }
-
-        const latest = rows[0];
+        const latest = rows[0] || {};
         const total = Number(latest.TotalProducts ?? 0);
-        const good = Number(latest.TotalGoodProducts ?? 0);
+        const good  = Number(latest.TotalGoodProducts ?? 0);
         const scrap = Number(latest.TotalScrapProducts ?? 0);
         const speed = Number(latest.MachineSpeed ?? 0);
+        const scrapPercentage = total>0
+          ? ((scrap/total)*100).toFixed(2)
+          : null;
+        const lineStatus = speed>1 ? "Running" : "Stopped";
 
-        const scrapPercentage =
-          total > 0 ? ((scrap / total) * 100).toFixed(2) : null;
-        const lineStatus = speed > 0 ? "Running" : "Stopped";
-
-        // ← Corrected mapping: use latest.Online_OEE
         res.json({
-          MachineSpeed: speed || null,
-          Online_OEE: latest.Online_OEE ?? null,
-          TotalProducts: total || null,
-          TotalGoodProducts: good || null,
-          TotalScrapProducts: scrap || null,
+          MachineSpeed:     speed || null,
+          Online_OEE:       latest.Online_OEE ?? null,
+          TotalProducts:    total || null,
+          TotalGoodProducts:good  || null,
+          TotalScrapProducts:scrap|| null,
           scrapPercentage,
           lineStatus,
         });
-      },
+      }
     };
-
     queryApi.queryRows(fluxQuery, observer);
   } catch (err) {
-    console.error("❌ /data error:", err);
-    res.status(500).json({ error: "Failed to fetch data from InfluxDB" });
+    console.error(err);
+    res.status(500).json({ error:"Failed to fetch data" });
   }
 });
 
-// --- Login route ---
+// Users
 const users = {
-  admin: "admin123",
-  Operation1: "op1123",
-  Operation2: "op2123",
+  Mahmood:   "Mahmood123",
+  Mohsen:    "Mohsen123",
+  Mahdi:     "Mahdi123",
+  Kazem:     "Kazem123",
+  Mohamad:   "Mohamad123",
+  Parisa:    "Parisa123",
+  Reza:      "Reza123",
+  Operation1:"op1123",
+  Operation2:"op2123",
+  Operation3:"op3123",
+  Operation4:"op4123",
+  Operation5:"op5123",
+  Operation6:"op6123",
+  admin:     "admin123",
 };
+
 app.post("/login", (req, res) => {
-  const username = String(req.body.username || "").trim();
-  const password = String(req.body.password || "").trim();
-  if (users[username] === password) {
-    res.redirect("/dashboard");
-  } else {
-    res
-      .status(401)
-      .send(
-        "<h2 style='color:red;'>Invalid credentials. <a href='/'>Try again</a></h2>"
-      );
-  }
+  const u = String(req.body.username||"");
+  const p = String(req.body.password||"");
+  if (users[u]===p) return res.redirect("/dashboard");
+  res
+   .status(401)
+   .send("<h2 style='color:red;'>Invalid credentials. <a href='/'>Try again</a></h2>");
 });
 
-// --- Dashboard route ---
-app.get("/dashboard", (req, res) => {
-  res.sendFile(path.join(publicPath, "dashboard.html"));
+// Dashboard & catch-all
+app.get("/dashboard", (req,res)=>{
+  res.sendFile(path.join(publicPath,"dashboard.html"));
+});
+app.use((req,res)=>{
+  res.sendFile(path.join(publicPath,"index.html"));
 });
 
-// --- Health check ---
-app.get("/", (req, res) => {
-  res.send("RIO Dashboard is running.");
-});
-
-// --- Catch-all (safe for Node.js v22+) ---
-app.use((req, res) => {
-  res.sendFile(path.join(publicPath, "index.html"));
-});
-
-// --- Local dev only ---
-if (require.main === module) {
-  app.listen(port, () => {
-    console.log(`✅ Server running locally at http://localhost:${port}`);
-  });
+// Local dev only
+if (require.main===module) {
+  app.listen(port,()=>console.log(`Listening on http://localhost:${port}`));
 }
 
-// ✅ Export for Vercel
 module.exports = app;
