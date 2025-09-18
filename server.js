@@ -2,14 +2,18 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
-const fs = require("fs");
 const { InfluxDB } = require("@influxdata/influxdb-client");
 
 const app = express();
 const port = process.env.PORT || 4000;
 
 // --- Verify env variables ---
-if (!process.env.INFLUX_URL || !process.env.INFLUX_TOKEN || !process.env.INFLUX_ORG || !process.env.INFLUX_BUCKET) {
+if (
+  !process.env.INFLUX_URL ||
+  !process.env.INFLUX_TOKEN ||
+  !process.env.INFLUX_ORG ||
+  !process.env.INFLUX_BUCKET
+) {
   console.error("❌ Missing InfluxDB env variables. Check your .env file.");
   process.exit(1);
 }
@@ -68,18 +72,19 @@ app.get("/data", async (req, res) => {
         }
 
         const latest = rows[0];
-
         const total = Number(latest.TotalProducts ?? 0);
         const good = Number(latest.TotalGoodProducts ?? 0);
         const scrap = Number(latest.TotalScrapProducts ?? 0);
         const speed = Number(latest.MachineSpeed ?? 0);
 
-        const scrapPercentage = total > 0 ? ((scrap / total) * 100).toFixed(2) : null;
+        const scrapPercentage =
+          total > 0 ? ((scrap / total) * 100).toFixed(2) : null;
         const lineStatus = speed > 0 ? "Running" : "Stopped";
 
+        // ← Corrected mapping: use latest.Online_OEE
         res.json({
           MachineSpeed: speed || null,
-          Online_OEE: latest.OEE ?? null,
+          Online_OEE: latest.Online_OEE ?? null,
           TotalProducts: total || null,
           TotalGoodProducts: good || null,
           TotalScrapProducts: scrap || null,
@@ -108,7 +113,11 @@ app.post("/login", (req, res) => {
   if (users[username] === password) {
     res.redirect("/dashboard");
   } else {
-    res.status(401).send("<h2 style='color:red;'>Invalid credentials. <a href='/'>Try again</a></h2>");
+    res
+      .status(401)
+      .send(
+        "<h2 style='color:red;'>Invalid credentials. <a href='/'>Try again</a></h2>"
+      );
   }
 });
 
