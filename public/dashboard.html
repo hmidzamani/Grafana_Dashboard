@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>ZarrinRoya Dashboard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    html, body {
+      height: 100%;
+    }
+    body {
+      background: #e3f2fd;
+      color: #0d47a1;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    header h1 {
+      font-size: 2.96rem;
+    }
+    header p {
+      font-size: 1.69rem;
+      opacity: 0.8;
+      line-height: 1.2;
+      margin: 0.25rem 0;
+    }
+    /* Make machine name bold & 10% bigger */
+    header p.machine-name {
+      font-weight: 700;
+      font-size: calc(1.69rem * 1.1);
+    }
+    .status {
+      margin-bottom: 2rem;
+    }
+    .status span {
+      display: inline-block;
+      font-size: 1.69rem;
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+    }
+    .running { background: #2e7d32; }
+    .stopped { background: #c62828; }
+    .kpis {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      width: 100%;
+      max-width: 360px;
+    }
+    .kpi {
+      background: #bbdefb;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .kpi h3 {
+      font-size: 1.69rem;
+      margin-bottom: 0.65rem;
+    }
+    .kpi p {
+      font-size: 2.535rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    table {
+      width: 100%;
+      max-width: 360px;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+    table th, table td {
+      font-size: 1.69rem;
+      padding: 0.75rem;
+      border-bottom: 1px solid #90caf9;
+      text-align: left;
+    }
+    table th {
+      background: #90caf9;
+      color: #fff;
+    }
+    /* Timeline original position */
+    #timeline {
+      display: flex;
+      width: 100%;
+      max-width: 360px;
+      height: 30px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      margin-bottom: 2rem;
+    }
+    .segment {
+      flex-grow: 1;
+      position: relative;
+    }
+    .segment.running { background: #2e7d32; }
+    .segment.stopped { background: #c62828; }
+    .segment:hover::after {
+      content: attr(data-duration) ' min';
+      position: absolute;
+      top: -2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 0.25rem 0.5rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .footer {
+      font-size: 1.43rem;
+      opacity: 0.8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ZarrinRoya</h1>
+    <p class="machine-name">C1 Baby Diaper Machine</p>
+    <p>Process dev. Team</p>
+  </header>
+
+  <div class="status">
+    <span id="status-label" class="running">Running</span>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi">
+      <h3>OEE</h3>
+      <p id="oee-value">--%</p>
+    </div>
+    <div class="kpi">
+      <h3>Scrap%</h3>
+      <p id="scrap-value">--%</p>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Total Products</td>
+        <td id="total-products">--</td>
+      </tr>
+      <tr>
+        <td>Total Good</td>
+        <td id="total-good">--</td>
+      </tr>
+      <tr>
+        <td>Total Rejects</td>
+        <td id="total-scrap">--</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 4-hour timeline segments -->
+  <div id="timeline">
+    <div class="segment running" data-duration="45" style="flex:45;"></div>
+    <div class="segment stopped" data-duration="2"  style="flex:2;"></div>
+    <div class="segment running" data-duration="10" style="flex:10;"></div>
+    <div class="segment stopped" data-duration="9"  style="flex:9;"></div>
+    <div class="segment running" data-duration="1"  style="flex:1;"></div>
+  </div>
+
+  <div class="footer">Design by: Hamid Zamani</div>
+
+  <script>
+    async function fetchData() {
+      const res = await fetch('/data');
+      return res.ok ? res.json() : {};
+    }
+
+    async function updateAll() {
+      const data = await fetchData();
+      document.getElementById('scrap-value').textContent =
+        data.scrapPercentage ? data.scrapPercentage + '%' : '--%';
+      document.getElementById('total-products').textContent =
+        data.TotalProducts ?? '--';
+      document.getElementById('total-good').textContent =
+        data.TotalGoodProducts ?? '--';
+      document.getElementById('total-scrap').textContent =
+        data.TotalScrapProducts ?? '--';
+      const statusEl = document.getElementById('status-label');
+      if (data.MachineSpeed > 1) {
+        statusEl.textContent = 'Running';
+        statusEl.className = 'running';
+      } else {
+        statusEl.textContent = 'Stopped';
+        statusEl.className = 'stopped';
+      }
+    }
+
+    async function updateOee() {
+      const data = await fetchData();
+      document.getElementById('oee-value').textContent =
+        data.Online_OEE ? data.Online_OEE + '%' : '--%';
+    }
+
+    updateAll();
+    updateOee();
+    setInterval(updateAll, 2000);
+    setInterval(updateOee, 20000);
+  </script>
+</body>
+</html>
+```
