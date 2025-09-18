@@ -26,7 +26,7 @@ const publicPath = path.join(__dirname, "public");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(publicPath));
 
-console.log("🚀 Server started");
+console.log("🚀 Server initialized");
 console.log("📂 Serving static files from:", publicPath);
 
 // --- /data endpoint ---
@@ -127,7 +127,12 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(publicPath, "index.html"));
 });
 
-// --- Start server ---
-app.listen(port, () => {
-  console.log(`✅ Server running at http://localhost:${port}`);
-});
+// --- Local dev only ---
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`✅ Server running locally at http://localhost:${port}`);
+  });
+}
+
+// ✅ Export for Vercel
+module.exports = app;
