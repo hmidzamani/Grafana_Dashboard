@@ -122,8 +122,8 @@ app.get("/", (req, res) => {
   res.send("RIO Dashboard is running.");
 });
 
-// --- Catch-all ---
-app.get("*", (req, res) => {
+// --- Catch-all (safe for Node.js v22+) ---
+app.use((req, res) => {
   res.sendFile(path.join(publicPath, "index.html"));
 });
 
